@@ -67,19 +67,18 @@ return [
 ];
 ```
 
-## Example project
-See example project [ here ](https://github.com/dimvic/yii-yin-example).
+## Demo: example project
+Example project can be found [here](https://github.com/dimvic/yii-yin-example). Setup in less than a minute, uses sqlite for db, fully functional.
 
 ## Attention
 Please note that the controller functions in an ugly way and adding business logic to it will be near impossible, all business logic should be implemented using CActiveRecord events.
 
 ## TODO
-* Review error codes & messages
-* Eager loading for included relationships
 * Fix `PATCH {"relationship": {"data":null}}`
-* ~~DELETE requests~~
-* GET paginated `/{resource}``
-* GET `?include`, `?filter`
+* GET `/{resource}` paginated
+* GET `?include` & eager loading for included relationships
+* GET `?filter`
+* Review error codes & messages
 * Controller filter to validate requests (see [yin-middlewares](https://github.com/woohoolabs/yin-middlewares))
 * UUID generator for exposed models (using a behavior)
-* Configuration parameters to allow use of component classes other than the included ones
+* Allow mapping of component classes to other than the included ones
