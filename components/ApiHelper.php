@@ -82,14 +82,12 @@ class ApiHelper {
         return self::$_currentModel;
     }
 
-    private static $_currentModelRelations;
     /**
      * @return array
      */
     public static function getCurrentModelRelations()
     {
-        !self::$_currentModelRelations && self::$_currentModelRelations = self::getCurrentModel()->relations();
-        return self::$_currentModelRelations;
+        return self::getCurrentModel()->relations();
     }
 
     private static $_currentConfig;
@@ -112,7 +110,7 @@ class ApiHelper {
      */
     public static function getExposedRelations($class)
     {
-        return isset(self::getResources()[$class]) && isset(self::getResources()[$class]['exposedRelations']) ? self::getResources()[$class]['exposedRelations'] : [];
+        return isset(self::getResources()[$class]) && isset(self::getResources()[$class]['exposedRelations']) ? array_keys(self::getResources()[$class]['exposedRelations']) : [];
     }
 
     /**
@@ -121,6 +119,6 @@ class ApiHelper {
      */
     public static function getDefaultRelations($class)
     {
-        return isset(self::getResources()[$class]) && isset(self::getResources()[$class]['defaultRelations']) ? self::getResources()[$class]['defaultRelations'] : [];
+        return isset(self::getResources()[$class]) && isset(self::getResources()[$class]['defaultRelations']) ? array_keys(self::getResources()[$class]['defaultRelations']) : [];
     }
 }

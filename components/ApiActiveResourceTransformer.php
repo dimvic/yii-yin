@@ -108,7 +108,7 @@ class ApiActiveResourceTransformer extends AbstractResourceTransformer
      */
     public function getDefaultIncludedRelationships($domainObject)
     {
-        return array_keys(ApiHelper::getDefaultRelations(get_class($domainObject)));
+        return ApiHelper::getDefaultRelations(get_class($domainObject));
     }
 
     /**
@@ -132,8 +132,6 @@ class ApiActiveResourceTransformer extends AbstractResourceTransformer
         $ret = [];
         foreach ($this->getDefaultIncludedRelationships($domainObject) as $relation) {
             $ret[$relation] = function(CActiveRecord $domainObject, $request, $relationName) {
-                $relatedType = ApiHelper::getRelationType($domainObject, $relationName);
-//                $relationName = ApiHelper::getTypeRelation($domainObject, $relatedType);
                 $relationDescription = ApiHelper::getCurrentModelRelations()[$relationName];
                 switch ($relationDescription[0]) {
                     case CActiveRecord::HAS_ONE:
@@ -148,7 +146,7 @@ class ApiActiveResourceTransformer extends AbstractResourceTransformer
                         new Links(
                             $this->getSelfLinkHref($domainObject),
                             [
-                                "self" => new Link("/related/{$relationName}")
+                                "self" => new Link("/relationships/{$relationName}")
                             ]
                         )
                     )

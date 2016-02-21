@@ -55,13 +55,18 @@ class ApiController extends CController
         if (!empty($route[2])) {
             $r = !empty($route[3]) ? $route[3] : null;
 
-            switch($route[2]) {
-                case 'relationships':
+            switch(true) {
+                case in_array($route[2], ApiHelper::getExposedRelations(get_class(ApiHelper::getCurrentModel()))):
+                    ApiHelper::$current_related = $route[2];
+                    break;
+                case $route[2]=='relationships':
                     ApiHelper::$current_related = $r;
                     break;
                 default:
                     ApiHelper::$responseErrors[] = [404];
-                    return false;
+            }
+            if ($this->request->getMethod()!='GET') {
+                ApiHelper::$responseErrors[] = [403];
             }
         }
 
@@ -71,19 +76,20 @@ class ApiController extends CController
     public function afterAction($action)
     {
         parent::afterAction($action);
+        if (empty(ApiHelper::$responseErrors)) {
+            try {
+                $actions = ApiHelper::getCurrentMethods();
+                $method = $this->request->getMethod();
 
-        try {
-            $actions = ApiHelper::getCurrentMethods();
-            $method = $this->request->getMethod();
-
-            $helper = new ApiActionHelper();
-            if (in_array($method, $actions)) {
-                call_user_func([$helper, $method], $this->jsonApi);
-            } else {
-                ApiHelper::$responseErrors[] = [405];
+                $helper = new ApiActionHelper();
+                if (in_array($method, $actions)) {
+                    call_user_func([$helper, $method], $this->jsonApi);
+                } else {
+                    ApiHelper::$responseErrors[] = [405];
+                }
+            } catch (JsonApiExceptionInterface $e) {
+                $this->sendError($e);
             }
-        } catch (JsonApiExceptionInterface $e) {
-            $this->sendError($e);
         }
         $this->respond();
     }
