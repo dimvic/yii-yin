@@ -76,6 +76,7 @@ class ApiController extends CController
     public function afterAction($action)
     {
         parent::afterAction($action);
+
         if (empty(ApiHelper::$responseErrors)) {
             try {
                 $actions = ApiHelper::getCurrentMethods();
@@ -125,9 +126,7 @@ class ApiController extends CController
 
     public function respond()
     {
-        if (!empty(ApiHelper::$responseErrors)) {
-            $this->sendErrors();
-        } else {
+        if (empty(ApiHelper::$responseErrors)) {
             $response = ApiHelper::$response;
             switch (true) {
                 case count($response) == 3:
@@ -136,9 +135,15 @@ class ApiController extends CController
                 case count($response) == 4:
                     $this->emit($this->jsonApi->respondWithRelationship($response[3])->{$response[0]}($response[1], $response[2]));
                     break;
+                case count($response) == 1:
+                    $this->emit($this->jsonApi->respond()->{$response[0]}());
+                    break;
                 default:
                     ApiHelper::$responseErrors[] = [500];
             }
+        }
+        if (!empty(ApiHelper::$responseErrors)) {
+            $this->sendErrors();
         }
     }
 

@@ -66,4 +66,54 @@ class ApiActiveRepository
             $domainObject->refresh();
         }
     }
+
+    /**
+     * @param CActiveRecord $domainObject
+     * @return bool
+     */
+    public static function delete($domainObject)
+    {
+        $ok = true;
+        $domainObject->dbConnection->beginTransaction();
+
+        //first delete related models for relations using "through"
+        foreach ($domainObject->relations() as $relationName=>$relationConfiguration) {
+            if ($relationConfiguration[0]==CActiveRecord::HAS_MANY && isset($relationConfiguration['through'])) {
+                foreach ($domainObject->{$relationName} as $relatedObject) {
+                    /** @var CActiveRecord $relatedObject */
+                    $relatedObject->delete();
+                }
+            }
+        }
+
+        //then everything else
+        foreach ($domainObject->relations() as $relationName=>$relationConfiguration) {
+            switch ($relationConfiguration[0]) {
+                case CActiveRecord::HAS_MANY:
+                    foreach ($domainObject->{$relationName} as $relatedObject) {
+                        /** @var CActiveRecord $relatedObject */
+                        $relatedObject->delete();
+                    }
+                    break;
+                case CActiveRecord::HAS_ONE:
+                    /** @var CActiveRecord $relatedObject */
+                    $relatedObject = $domainObject->{$relationName};
+                    if ($relatedObject) {
+                        $ok = $ok && $relatedObject->delete();
+                    }
+                    break;
+            }
+        }
+
+        //and the model itself
+        $ok = $ok && $domainObject->delete();
+
+        if ($ok) {
+            $domainObject->dbConnection->currentTransaction->commit();
+            return true;
+        } else {
+            $domainObject->dbConnection->currentTransaction->rollback();
+            return false;
+        }
+    }
 }

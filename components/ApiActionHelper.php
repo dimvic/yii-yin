@@ -89,6 +89,18 @@ class ApiActionHelper
 
     public function DELETE()
     {
-        //@todo
+        $domainObject = ApiActiveRepository::getByPk($this->resource, $this->resource_id);
+
+        if (!$domainObject) {
+            ApiHelper::$responseErrors[] = [404];
+            return;
+        }
+
+        if (empty(ApiHelper::$responseErrors)) {
+            ApiActiveRepository::delete($domainObject);
+
+            // Responding with "204 No Content" status code
+            ApiHelper::$response = ['noContent'];
+        }
     }
 }

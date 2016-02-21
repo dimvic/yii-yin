@@ -1,6 +1,8 @@
 # Drop-in json:api web service module for Yii 1.1
 
-Yii 1.1 module, drop in and configure the module to automagically expose select models using a [json:api](http://jsonapi.org) 1.0 compatible web service.
+Yii 1.1 module, drop in and configure the module to automagically expose resources (models) using a [json:api](http://jsonapi.org) 1.0 compatible web service.
+
+Even though developed with CActiveRecord in mind, you should be able to use any CModel out of the box.
 
 Thanks [yii-yin](https://github.com/woohoolabs/yin), this project is practically a hack on top of it's provided example.
 
@@ -73,9 +75,9 @@ Please note that the controller functions in an ugly way and adding business log
 * Review error codes & messages
 * Eager loading for included relationships
 * Fix `PATCH {"relationship": {"data":null}}`
-* Implement support for DELETE requests
-* Implement support for paginated GET /{resource}
-* Implement support for ?include and ?filter for GET requests
-* Implement controller filter to validate requests (see [yin-middlewares](https://github.com/woohoolabs/yin-middlewares))
-* Implement a drop-in UUID generator for exposed models
-* Add configuration parameters to allow using component classes other than the included ones
+* ~~DELETE requests~~
+* GET paginated `/{resource}``
+* GET `?include`, `?filter`
+* Controller filter to validate requests (see [yin-middlewares](https://github.com/woohoolabs/yin-middlewares))
+* UUID generator for exposed models (using a behavior)
+* Configuration parameters to allow use of component classes other than the included ones
