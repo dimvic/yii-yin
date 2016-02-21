@@ -1,19 +1,21 @@
-# Drop-in json:api web service module for Yii 1.1
+# json:api module for Yii 1.1
 
-Yii 1.1 module, drop in and configure the module to automagically expose resources (models) using a [json:api](http://jsonapi.org) 1.0 compatible web service.
+Yii 1.1 module, drop in and configure to automagically expose resources (models) through a [json:api](http://jsonapi.org) 1.0 compatible web service.
 
 Even though developed with CActiveRecord in mind, you should be able to use any CModel out of the box.
 
-Thanks [yii-yin](https://github.com/woohoolabs/yin), this project is practically a hack on top of it's provided example.
+Thanks [yii-yin](https://github.com/woohoolabs/yin) for being an amazing library and providing the example this module is heavily based on.
 
-Thanks [Máté Kocsis](https://github.com/kocsismate) for the quick replies and merging of the pull requests.
+Thanks [Máté Kocsis](https://github.com/kocsismate) for the help and merging of the pull requests.
 
 ## Supported functions
 
 * GET /{resource}/{id}
 * GET /{resource}/{id}/relationships/{relationship}
+* GET /{resource}/{id}/{relationship}
 * PATCH /{resource}/{id}
 * POST /{resource}
+* DELETE /{resource}/{id}
 
 ## Usage
 Clone the repository in a directory inside `Yii::app()->modulePath` (default: `protected/modules`), for example `protected/modules/api`, configure the module and you have a fully functional web service!
