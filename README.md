@@ -1,6 +1,6 @@
-# Drop-in JSON API web service module for Yii 1.1
+# Drop-in json:api web service module for Yii 1.1
 
-Yii 1.1 module, drop in and configure the module to automagically expose select models using a jsonApi 1.0 compatible web service.
+Yii 1.1 module, drop in and configure the module to automagically expose select models using a [json:api](http://jsonapi.org) 1.0 compatible web service.
 
 Thanks [yii-yin](https://github.com/woohoolabs/yin), this project is practically a hack on top of it's provided example.
 
@@ -14,7 +14,7 @@ Thanks [Máté Kocsis](https://github.com/kocsismate) for the quick replies and 
 * POST /{resource}
 
 ## Usage
-Clone the repository in a directory inside `Yii::app()->modulePath` (default: `protected/modules`), for example `protected/modules/api`, then include the module in the application config file and you have a fully functioning jsonApi web service.
+Clone the repository in a directory inside `Yii::app()->modulePath` (default: `protected/modules`), for example `protected/modules/api`, configure the module and you have a fully functional web service!
 
 I like to believe configuration is self-explanatory:
 ```php
