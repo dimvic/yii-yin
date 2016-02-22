@@ -26,7 +26,12 @@ class ApiActiveRepository
     {
         $domainObject->validate();
         foreach ($domainObject->errors as $error) {
-            ApiHelper::$responseErrors[] = [400, 'VALIDATION_FAILED', "'".ApiHelper::getResourceType(get_class($domainObject))."' validation error", $error];
+            ApiHelper::$responseErrors[] = [
+                400,
+                'VALIDATION_FAILED',
+                "'" . ApiHelper::getResourceType(get_class($domainObject)) . "' validation error",
+                $error,
+            ];
         }
 
         foreach (self::$saveQueue as $item) {
@@ -39,9 +44,19 @@ class ApiActiveRepository
 
             /** @var WoohooLabs\Yin\JsonApi\Schema\ResourceIdentifier $resourceIdentifier */
             $resourceIdentifier = $item['resourceIdentifier'];
-            foreach ($model->errors as $attribute=>$errors) {
+            foreach ($model->errors as $attribute => $errors) {
                 foreach ($errors as $error) {
-                    ApiHelper::$responseErrors[] = [400, 'VALIDATION_FAILED', "'".ApiHelper::getResourceType(get_class($domainObject))."' relationship '{$resourceIdentifier->getType()}' validation error", $error, ApiActiveRelationHydratorHelper::generateMeta($resourceIdentifier, 'asdads')];
+                    ApiHelper::$responseErrors[] = [
+                        400,
+                        'VALIDATION_FAILED',
+                        "'" . ApiHelper::getResourceType(get_class($domainObject))
+                            . "' relationship '{$resourceIdentifier->getType()}' validation error",
+                        $error,
+                        ApiActiveRelationHydratorHelper::generateMeta(
+                            $resourceIdentifier,
+                            ApiHelper::getTypeRelation($domainObject, $resourceIdentifier->getType())
+                        )
+                    ];
                 }
             }
         }
@@ -77,8 +92,8 @@ class ApiActiveRepository
         $domainObject->dbConnection->beginTransaction();
 
         //first delete related models for relations using "through"
-        foreach ($domainObject->relations() as $relationName=>$relationConfiguration) {
-            if ($relationConfiguration[0]==CActiveRecord::HAS_MANY && isset($relationConfiguration['through'])) {
+        foreach ($domainObject->relations() as $relationName => $relationConfiguration) {
+            if ($relationConfiguration[0] == CActiveRecord::HAS_MANY && isset($relationConfiguration['through'])) {
                 foreach ($domainObject->{$relationName} as $relatedObject) {
                     /** @var CActiveRecord $relatedObject */
                     $relatedObject->delete();
@@ -87,7 +102,7 @@ class ApiActiveRepository
         }
 
         //then everything else
-        foreach ($domainObject->relations() as $relationName=>$relationConfiguration) {
+        foreach ($domainObject->relations() as $relationName => $relationConfiguration) {
             switch ($relationConfiguration[0]) {
                 case CActiveRecord::HAS_MANY:
                     foreach ($domainObject->{$relationName} as $relatedObject) {

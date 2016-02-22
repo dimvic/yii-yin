@@ -67,9 +67,11 @@ class ApiActiveHydrator extends AbstractHydrator
     protected function getAttributeHydrator($domainObject)
     {
         $ret = [];
-        foreach ($domainObject->attributes as $k=>$v) {
-            if ($k!=$domainObject->primaryKey()) {
-                $ret[$k] = function(CActiveRecord $domainObject, $value, $data, $attribute)  { $domainObject->{$attribute} = $value; };
+        foreach ($domainObject->attributes as $k => $v) {
+            if ($k != $domainObject->primaryKey()) {
+                $ret[$k] = function (CActiveRecord $domainObject, $value, $data, $attribute) {
+                    $domainObject->{$attribute} = $value;
+                };
             }
         }
         return $ret;
@@ -81,7 +83,7 @@ class ApiActiveHydrator extends AbstractHydrator
      */
     protected function getRelationshipHydrator($domainObject)
     {
-        if (get_class($domainObject)!=ApiHelper::getCurrentResource()) {
+        if (get_class($domainObject) != ApiHelper::getCurrentResource()) {
             return [];
         }
 
@@ -89,18 +91,56 @@ class ApiActiveHydrator extends AbstractHydrator
         $ret = [];
         foreach (ApiHelper::getExposedRelations(get_class($domainObject)) as $relation) {
             switch (true) {
-                case $relations[$relation][0]==CActiveRecord::HAS_MANY:
+                case $relations[$relation][0] == CActiveRecord::HAS_MANY:
                     if (isset($relations[$relation]['through'])) {
-                        $ret[$relation] = function(CActiveRecord $domainObject, $relationship, $data, $relationshipName) { ApiActiveRelationHydratorHelper::hydrateHasManyThroughRelationship($domainObject, $relationship, $data, $relationshipName); };
+                        $ret[$relation] = function (
+                            CActiveRecord $domainObject,
+                            $relationship,
+                            $data,
+                            $relationshipName
+                        ) {
+                            ApiActiveRelationHydratorHelper::hydrateHasManyThroughRelationship(
+                                $domainObject,
+                                $relationship,
+                                $data,
+                                $relationshipName
+                            );
+                        };
                     } else {
-                        $ret[$relation] = function(CActiveRecord $domainObject, $relationship, $data, $relationshipName) { ApiActiveRelationHydratorHelper::hydrateHasManyRelationship($domainObject, $relationship, $data, $relationshipName); };
+                        $ret[$relation] = function (
+                            CActiveRecord $domainObject,
+                            $relationship,
+                            $data,
+                            $relationshipName
+                        ) {
+                            ApiActiveRelationHydratorHelper::hydrateHasManyRelationship(
+                                $domainObject,
+                                $relationship,
+                                $data,
+                                $relationshipName
+                            );
+                        };
                     }
                     break;
-                case $relations[$relation][0]==CActiveRecord::HAS_ONE:
-                    $ret[$relation] = function(CActiveRecord $domainObject, $relationship, $data, $relationshipName) { ApiActiveRelationHydratorHelper::hydrateHasOneRelationship($domainObject, $relationship, $data, $relationshipName); };
+                case $relations[$relation][0] == CActiveRecord::HAS_ONE:
+                    $ret[$relation] = function (CActiveRecord $domainObject, $relationship, $data, $relationshipName) {
+                        ApiActiveRelationHydratorHelper::hydrateHasOneRelationship(
+                            $domainObject,
+                            $relationship,
+                            $data,
+                            $relationshipName
+                        );
+                    };
                     break;
-                case $relations[$relation][0]==CActiveRecord::BELONGS_TO:
-                    $ret[$relation] = function(CActiveRecord $domainObject, $relationship, $data, $relationshipName) { ApiActiveRelationHydratorHelper::hydrateBelongsToRelationship($domainObject, $relationship, $data, $relationshipName); };
+                case $relations[$relation][0] == CActiveRecord::BELONGS_TO:
+                    $ret[$relation] = function (CActiveRecord $domainObject, $relationship, $data, $relationshipName) {
+                        ApiActiveRelationHydratorHelper::hydrateBelongsToRelationship(
+                            $domainObject,
+                            $relationship,
+                            $data,
+                            $relationshipName
+                        );
+                    };
                     break;
             }
         }

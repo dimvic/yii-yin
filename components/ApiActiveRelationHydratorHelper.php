@@ -2,7 +2,8 @@
 
 use WoohooLabs\Yin\JsonApi\Schema\ResourceIdentifier;
 
-class ApiActiveRelationHydratorHelper {
+class ApiActiveRelationHydratorHelper
+{
     /**
      * @param CActiveRecord $domainObject
      * @param WoohooLabs\Yin\JsonApi\Hydrator\Relationship\ToOneRelationship $relationship
@@ -30,8 +31,16 @@ class ApiActiveRelationHydratorHelper {
         if ($relatedModel) {
             $domainObject->{$relationConfiguration[2]} = $relatedModel->id;
         } else {
-            $title = "A resource of type '{$resourceIdentifier->getType()}' with ID '{$resourceIdentifier->getId()}' was not found";
-            ApiHelper::$responseErrors[] = [404, null, $title, "{$title} when trying to add it as a relationship to a resource of type '".ApiHelper::getCurrentResource()."'.", self::generateMeta($resourceIdentifier, $relationshipName)];
+            $title = "A resource of type '{$resourceIdentifier->getType()}' "
+                ."with ID '{$resourceIdentifier->getId()}' was not found";
+            ApiHelper::$responseErrors[] = [
+                404,
+                null,
+                $title,
+                "{$title} when trying to add it as a relationship to a resource of type '"
+                    . ApiHelper::getCurrentResource() . "'.",
+                self::generateMeta($resourceIdentifier, $relationshipName)
+            ];
         }
     }
 
@@ -60,7 +69,9 @@ class ApiActiveRelationHydratorHelper {
         $throughClass = $throughConfiguration[1];
 
         $resourceThroughKey = $throughConfiguration[2];
-        $relationThroughKey = is_array($relationConfiguration[2]) ? array_keys($relationConfiguration[2])[0] : $relationConfiguration[2];
+        $relationThroughKey = is_array($relationConfiguration[2])
+            ? array_keys($relationConfiguration[2])[0]
+            : $relationConfiguration[2];
 
         $existing = [];
         foreach ($domainObject->{$relationshipName} as $item) {
@@ -124,10 +135,10 @@ class ApiActiveRelationHydratorHelper {
     public static function generateMeta($resourceIdentifier, $relationshipName)
     {
         return [
-            $relationshipName=>[
-                'type'=>$resourceIdentifier->getType(),
-                'id'=>$resourceIdentifier->getid(),
-                'meta'=>$resourceIdentifier->getMeta()
+            $relationshipName => [
+                'type' => $resourceIdentifier->getType(),
+                'id' => $resourceIdentifier->getid(),
+                'meta' => $resourceIdentifier->getMeta()
             ],
         ];
     }

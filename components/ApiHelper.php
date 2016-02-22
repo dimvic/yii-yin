@@ -1,6 +1,7 @@
 <?php
 
-class ApiHelper {
+class ApiHelper
+{
     public static $current_type;
     public static $current_id;
     public static $current_related;
@@ -13,25 +14,27 @@ class ApiHelper {
         return Yii::app()->controller->module->resources;
     }
 
-    private static $_routes = [];
+    private static $routes = [];
+
     public static function getRoutes()
     {
-        if (empty(self::$_routes)) {
-            foreach (self::getResources() as $resource=>$configuration) {
-                self::$_routes[$configuration['type']] = $resource;
+        if (empty(self::$routes)) {
+            foreach (self::getResources() as $resource => $configuration) {
+                self::$routes[$configuration['type']] = $resource;
             }
         }
-        return self::$_routes;
+        return self::$routes;
     }
 
     /**
-     * @param CActiveRecord $domainObject
+     * @param string|CActiveRecord $domainObject
      * @param string $type
      * @return string
      */
     public static function getTypeRelation($domainObject, $type)
     {
-        return array_search($type, self::getExposedRelations(get_class($domainObject)));
+        $class = is_string($domainObject) ? $domainObject : get_class($domainObject);
+        return array_search($type, self::getExposedRelations($class));
     }
 
     public static function getRelationType($domainObject, $relation)
@@ -59,27 +62,29 @@ class ApiHelper {
         return self::$current_related;
     }
 
-    private static $_currentResource;
+    private static $currentResource;
+
     /**
      * @return string
      */
     public static function getCurrentResource()
     {
-        !self::$_currentResource && self::$_currentResource = self::getRoutes()[self::$current_type];
-        return self::$_currentResource;
+        !self::$currentResource && self::$currentResource = self::getRoutes()[self::$current_type];
+        return self::$currentResource;
     }
 
-    private static $_currentModel;
+    private static $currentModel;
+
     /**
      * @return CActiveRecord
      */
     public static function getCurrentModel()
     {
-        if (!self::$_currentModel) {
+        if (!self::$currentModel) {
             $class = self::getCurrentResource();
-            self::$_currentModel = new $class;
+            self::$currentModel = new $class;
         }
-        return self::$_currentModel;
+        return self::$currentModel;
     }
 
     /**
@@ -90,18 +95,20 @@ class ApiHelper {
         return self::getCurrentModel()->relations();
     }
 
-    private static $_currentConfig;
+    private static $currentConfig;
+
     public static function getCurrentConfig()
     {
-        !self::$_currentConfig && self::$_currentConfig = self::getResources()[self::getCurrentResource()];
-        return self::$_currentConfig;
+        !self::$currentConfig && self::$currentConfig = self::getResources()[self::getCurrentResource()];
+        return self::$currentConfig;
     }
 
-    private static $_currentMethods;
+    private static $currentMethods;
+
     public static function getCurrentMethods()
     {
-        !self::$_currentMethods && self::$_currentMethods = self::getCurrentConfig()['methods'];
-        return self::$_currentMethods;
+        !self::$currentMethods && self::$currentMethods = self::getCurrentConfig()['methods'];
+        return self::$currentMethods;
     }
 
     /**
@@ -110,7 +117,9 @@ class ApiHelper {
      */
     public static function getExposedRelations($class)
     {
-        return isset(self::getResources()[$class]) && isset(self::getResources()[$class]['exposedRelations']) ? array_keys(self::getResources()[$class]['exposedRelations']) : [];
+        return isset(self::getResources()[$class]) && isset(self::getResources()[$class]['exposedRelations'])
+            ? array_keys(self::getResources()[$class]['exposedRelations'])
+            : [];
     }
 
     /**
@@ -119,6 +128,8 @@ class ApiHelper {
      */
     public static function getDefaultRelations($class)
     {
-        return isset(self::getResources()[$class]) && isset(self::getResources()[$class]['defaultRelations']) ? array_keys(self::getResources()[$class]['defaultRelations']) : [];
+        return isset(self::getResources()[$class]) && isset(self::getResources()[$class]['defaultRelations'])
+            ? array_keys(self::getResources()[$class]['defaultRelations'])
+            : [];
     }
 }

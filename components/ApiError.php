@@ -3,7 +3,7 @@
 use WoohooLabs\Yin\JsonApi\Exception\JsonApiException;
 use WoohooLabs\Yin\JsonApi\Schema\Error;
 
-class ApiError  extends JsonApiException
+class ApiError extends JsonApiException
 {
     public $phrases = [
         // INFORMATIONAL CODES
@@ -80,8 +80,8 @@ class ApiError  extends JsonApiException
     protected function getErrors()
     {
         $errors = ApiHelper::$responseErrors;
-        usort($errors, function($a, $b) {
-            return $a[0]>$b[0];
+        usort($errors, function ($a, $b) {
+            return $a[0] > $b[0];
         });
         $ret = [];
         foreach ($errors as $error) {
@@ -90,18 +90,22 @@ class ApiError  extends JsonApiException
                 $code = $error->code;
                 $title = $error->message;
                 $detail = "{$error->file} {$error->line}";
-                $meta = ['trace'=>$error->getTrace()];
-            } else if (!empty($error[1]) && is_array($error[1])) {
+                $meta = ['trace' => $error->getTrace()];
+            } elseif (!empty($error[1]) && is_array($error[1])) {
                 $status = $error[1]['code'];
                 $code = $error[1]['code'];
                 $title = $error[1]['message'];
                 $detail = "{$error[1]['file']} {$error[1]['line']}";
-                $meta = ['trace'=>$error[1]['trace']];
+                $meta = ['trace' => $error[1]['trace']];
             } else {
                 $status = $error[0];
-                $code = !empty($error[1]) ? $error[1] : (isset($this->phrases[$status]) ? $this->phrases[$status] : $status);
+                $code = !empty($error[1])
+                    ? $error[1]
+                    : (isset($this->phrases[$status]) ? $this->phrases[$status] : $status);
                 $code = mb_strtoupper(trim(preg_replace('/_+/', '_', preg_replace('/[^a-zA-Z]/', '_', $code)), '_'));
-                $title = (!empty($error[2]) ? $error[2] : (isset($this->phrases[$status]) ? $this->phrases[$status] : 'Application Error')).'!';
+                $title = (!empty($error[2])
+                        ? $error[2]
+                        : (isset($this->phrases[$status]) ? $this->phrases[$status] : 'Application Error')) . '!';
                 $detail = !empty($error[3]) ? $error[3] : $title;
                 $meta = !empty($error[4]) ? $error[4] : null;
             }

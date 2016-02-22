@@ -56,7 +56,7 @@ class ApiActiveResourceTransformer extends AbstractResourceTransformer
      */
     public function getSelfLinkHref(CActiveRecord $domainObject)
     {
-        return Yii::app()->createUrl('/api', ['model'=>$domainObject]);
+        return Yii::app()->createUrl('/api', ['model' => $domainObject]);
     }
 
     /**
@@ -66,9 +66,11 @@ class ApiActiveResourceTransformer extends AbstractResourceTransformer
     public function getAttributes($domainObject)
     {
         $ret = [];
-        foreach ($domainObject->attributes as $k=>$v) {
-            if ($k!=$domainObject->primaryKey()) {
-                $ret[$k] = function(CActiveRecord $domainObject, $request, $attribute) { return $domainObject->{$attribute}; };
+        foreach ($domainObject->attributes as $k => $v) {
+            if ($k != $domainObject->primaryKey()) {
+                $ret[$k] = function (CActiveRecord $domainObject, $request, $attribute) {
+                    return $domainObject->{$attribute};
+                };
             }
         }
         return $ret;
@@ -89,7 +91,7 @@ class ApiActiveResourceTransformer extends AbstractResourceTransformer
      */
     public function getRelationships($domainObject)
     {
-        if (get_class($domainObject)!=ApiHelper::getCurrentResource()) {
+        if (get_class($domainObject) != ApiHelper::getCurrentResource()) {
             return [];
         }
 
@@ -97,7 +99,7 @@ class ApiActiveResourceTransformer extends AbstractResourceTransformer
 
         $ret = [];
         foreach ($this->getDefaultIncludedRelationships($domainObject) as $relation) {
-            $ret[$relation] = function(CActiveRecord $domainObject, $request, $relationName) {
+            $ret[$relation] = function (CActiveRecord $domainObject, $request, $relationName) {
                 $relationDescription = ApiHelper::getCurrentModelRelations()[$relationName];
                 switch ($relationDescription[0]) {
                     case CActiveRecord::HAS_ONE:
@@ -116,8 +118,7 @@ class ApiActiveResourceTransformer extends AbstractResourceTransformer
                             ]
                         )
                     )
-                    ->setData($domainObject->{$relationName}, $this->transformer)
-                ;
+                    ->setData($domainObject->{$relationName}, $this->transformer);
             };
         }
         return $ret;

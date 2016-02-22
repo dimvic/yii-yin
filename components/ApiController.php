@@ -23,8 +23,8 @@ class ApiController extends CController
     public function init()
     {
         Yii::app()->setComponents([
-            'errorHandler'=> [
-                'errorAction'=>'api/default/error',
+            'errorHandler' => [
+                'errorAction' => 'api/default/error',
             ],
         ]);
 
@@ -41,7 +41,7 @@ class ApiController extends CController
         }
 
         $route = explode('/', $_REQUEST['route']);
-        foreach ($route as $k=>$v) {
+        foreach ($route as $k => $v) {
             $route[$k] = urldecode($v);
         }
 
@@ -55,17 +55,17 @@ class ApiController extends CController
         if (!empty($route[2])) {
             $r = !empty($route[3]) ? $route[3] : null;
 
-            switch(true) {
+            switch (true) {
                 case in_array($route[2], ApiHelper::getExposedRelations(get_class(ApiHelper::getCurrentModel()))):
                     ApiHelper::$current_related = $route[2];
                     break;
-                case $route[2]=='relationships':
+                case $route[2] == 'relationships':
                     ApiHelper::$current_related = $r;
                     break;
                 default:
                     ApiHelper::$responseErrors[] = [404];
             }
-            if ($this->request->getMethod()!='GET') {
+            if ($this->request->getMethod() != 'GET') {
                 ApiHelper::$responseErrors[] = [403];
             }
         }
@@ -118,7 +118,7 @@ class ApiController extends CController
      * @param $e JsonApiExceptionInterface
      * @param $detail string
      */
-    public function sendError($e, $detail=null)
+    public function sendError($e, $detail = null)
     {
         $response = $detail ? new Response($detail) : new Response;
         $this->emit($e->getErrorDocument()->getResponse($response));
@@ -133,7 +133,10 @@ class ApiController extends CController
                     $this->emit($this->jsonApi->respond()->{$response[0]}($response[1], $response[2]));
                     break;
                 case count($response) == 4:
-                    $this->emit($this->jsonApi->respondWithRelationship($response[3])->{$response[0]}($response[1], $response[2]));
+                    $this->emit($this->jsonApi->respondWithRelationship($response[3])->{$response[0]}(
+                        $response[1],
+                        $response[2]
+                    ));
                     break;
                 case count($response) == 1:
                     $this->emit($this->jsonApi->respond()->{$response[0]}());

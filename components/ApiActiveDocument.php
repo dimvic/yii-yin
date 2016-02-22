@@ -58,7 +58,7 @@ class ApiActiveDocument extends AbstractSingleResourceDocument
     {
         return Links::createWithoutBaseUri(
             [
-                "self" => new Link(Yii::app()->createUrl('/api', ['model'=>$this->domainObject]))
+                "self" => new Link(Yii::app()->createUrl('/api', ['model' => $this->domainObject]))
             ]
         );
     }
