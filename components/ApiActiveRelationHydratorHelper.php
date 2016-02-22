@@ -54,8 +54,7 @@ class ApiActiveRelationHydratorHelper {
      */
     public static function hydrateHasManyThroughRelationship($domainObject, $relationship, $data, $relationshipName)
     {
-        $relationName = ApiHelper::getTypeRelation($domainObject, $relationshipName);
-        $relationConfiguration = $domainObject->relations()[$relationName];
+        $relationConfiguration = $domainObject->relations()[$relationshipName];
         $throughConfiguration = $domainObject->relations()[$relationConfiguration['through']];
 
         $throughClass = $throughConfiguration[1];

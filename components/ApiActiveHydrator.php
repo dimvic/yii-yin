@@ -16,8 +16,6 @@ class ApiActiveHydrator extends AbstractHydrator
     }
 
     /**
-     * Determines which resource type or types can be accepted by the hydrator.
-     *
      * @return string|array
      */
     protected function getAcceptedType()
@@ -26,8 +24,6 @@ class ApiActiveHydrator extends AbstractHydrator
     }
 
     /**
-     * Validates a client-generated ID.
-     *
      * @param string $clientGeneratedId
      * @param \WoohooLabs\Yin\JsonApi\Request\RequestInterface $request
      * @param \WoohooLabs\Yin\JsonApi\Exception\ExceptionFactoryInterface $exceptionFactory
@@ -46,10 +42,6 @@ class ApiActiveHydrator extends AbstractHydrator
     }
 
     /**
-     * Produces a new ID for the domain objects.
-     *
-     * UUID-s are preferred according to the JSON API specification.
-     *
      * @return null
      */
     protected function generateId()
@@ -58,8 +50,6 @@ class ApiActiveHydrator extends AbstractHydrator
     }
 
     /**
-     * Sets the given ID for the domain object.
-     *
      * @param CActiveRecord $domainObject
      * @param string $id
      * @return mixed|null
@@ -71,27 +61,23 @@ class ApiActiveHydrator extends AbstractHydrator
     }
 
     /**
-     * Provides the attribute hydrators.
-     *
      * @param CActiveRecord $domainObject
-     * @return array
+     * @return callable[]
      */
     protected function getAttributeHydrator($domainObject)
     {
         $ret = [];
         foreach ($domainObject->attributes as $k=>$v) {
             if ($k!=$domainObject->primaryKey()) {
-                $ret[$k] = function(CActiveRecord $domainObject, $value, $attribute)  { $domainObject->{$attribute} = $value; };
+                $ret[$k] = function(CActiveRecord $domainObject, $value, $data, $attribute)  { $domainObject->{$attribute} = $value; };
             }
         }
         return $ret;
     }
 
     /**
-     * Provides the relationship hydrators.
-     *
      * @param CActiveRecord $domainObject
-     * @return array
+     * @return callable[]
      */
     protected function getRelationshipHydrator($domainObject)
     {
@@ -101,7 +87,7 @@ class ApiActiveHydrator extends AbstractHydrator
 
         $relations = ApiHelper::getCurrentModelRelations();
         $ret = [];
-        foreach (ApiHelper::getExposedRelations(get_class($domainObject)) as $relation=>$relatedType) {
+        foreach (ApiHelper::getExposedRelations(get_class($domainObject)) as $relation) {
             switch (true) {
                 case $relations[$relation][0]==CActiveRecord::HAS_MANY:
                     if (isset($relations[$relation]['through'])) {
@@ -119,79 +105,5 @@ class ApiActiveHydrator extends AbstractHydrator
             }
         }
         return $ret;
-    }
-
-    /*
-     * HydratorTrait
-     */
-
-    /**
-     * @param mixed $domainObject
-     * @param array $data
-     * @return mixed
-     */
-    protected function hydrateAttributes($domainObject, array $data)
-    {
-        if (empty($data["attributes"])) {
-            return $domainObject;
-        }
-
-        $attributeHydrator = $this->getAttributeHydrator($domainObject);
-        foreach ($attributeHydrator as $attribute => $hydrator) {
-            if (isset($data["attributes"][$attribute]) === false) {
-                continue;
-            }
-
-            $result = $hydrator($domainObject, $data["attributes"][$attribute], $attribute, $data);
-            if ($result) {
-                $domainObject = $result;
-            }
-        }
-
-        return $domainObject;
-    }
-
-    /*
-     * HydratorTrait
-     */
-
-    /**
-     * @param string $relationshipName
-     * @param \Closure $hydrator
-     * @param mixed $domainObject
-     * @param ToOneRelationship|ToManyRelationship $relationshipObject
-     * @param array $data
-     * @param \WoohooLabs\Yin\JsonApi\Exception\ExceptionFactoryInterface $exceptionFactory
-     * @return mixed
-     * @throws \WoohooLabs\Yin\JsonApi\Exception\RelationshipTypeInappropriate
-     * @throws \Exception
-     */
-    protected function getRelationshipHydratorResult(
-        $relationshipName,
-        \Closure $hydrator,
-        $domainObject,
-        $relationshipObject,
-        array $data,
-        ExceptionFactoryInterface $exceptionFactory
-    ) {
-        // Checking if the current and expected relationship types match
-        $relationshipType = $this->getRelationshipType($relationshipObject);
-        $expectedRelationshipType = $this->getRelationshipType($this->getArgumentTypeHintFromClosure($hydrator));
-        if ($expectedRelationshipType !== null && $relationshipType !== $expectedRelationshipType) {
-            throw $exceptionFactory->createRelationshipTypeInappropriateException(
-                $relationshipName,
-                $relationshipType,
-                $expectedRelationshipType
-            );
-        }
-
-        // Returning if the hydrator returns the hydrated domain object
-        $value = $hydrator($domainObject, $relationshipObject, $data, $relationshipName);
-        if ($value) {
-            return $value;
-        }
-
-        // Returning the domain object which was mutated but not returned by the hydrator
-        return $domainObject;
     }
 }
