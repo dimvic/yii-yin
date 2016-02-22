@@ -2,12 +2,15 @@
 
 class ApiActiveRepository
 {
+    public static $saveQueue = [];
+    public static $deleteQueue = [];
+
     /**
      * @param string $class
-     * @param string $id
+     * @param int|string $id
      * @return CActiveRecord|null
      */
-    public static function getByPk($class, $id)
+    public static function getById($class, $id)
     {
         $model = new $class;
         /**
@@ -16,8 +19,14 @@ class ApiActiveRepository
         return $model->findByPk($id);
     }
 
-    public static $saveQueue = [];
-    public static $deleteQueue = [];
+    /**
+     * @param CActiveRecord $domainObject
+     * @return int|string
+     */
+    public static function getId($domainObject)
+    {
+        return $domainObject->id;
+    }
 
     /**
      * @param CActiveRecord $domainObject

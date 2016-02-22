@@ -25,7 +25,7 @@ class ApiActiveResourceTransformer extends AbstractResourceTransformer
      */
     public function getId($domainObject)
     {
-        return $domainObject->id;
+        return ApiActiveRepository::getId($domainObject);
     }
 
     /**

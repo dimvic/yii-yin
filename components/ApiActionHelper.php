@@ -15,7 +15,7 @@ class ApiActionHelper
 
     public function GET()
     {
-        $domainObject = ApiActiveRepository::getByPk($this->resource, $this->resource_id);
+        $domainObject = ApiActiveRepository::getById($this->resource, $this->resource_id);
 
         if (!$domainObject) {
             ApiHelper::$responseErrors[] = [404];
@@ -69,7 +69,7 @@ class ApiActionHelper
      */
     public function PATCH(\WoohooLabs\Yin\JsonApi\JsonApi $jsonApi)
     {
-        $domainObject = ApiActiveRepository::getByPk($this->resource, $this->resource_id);
+        $domainObject = ApiActiveRepository::getById($this->resource, $this->resource_id);
 
         if (!$domainObject) {
             ApiHelper::$responseErrors[] = [404];
@@ -89,7 +89,7 @@ class ApiActionHelper
 
     public function DELETE()
     {
-        $domainObject = ApiActiveRepository::getByPk($this->resource, $this->resource_id);
+        $domainObject = ApiActiveRepository::getById($this->resource, $this->resource_id);
 
         if (!$domainObject) {
             ApiHelper::$responseErrors[] = [404];
