@@ -1,5 +1,7 @@
 <?php
 
+namespace dimvic\YiiYin;
+
 use WoohooLabs\Yin\JsonApi\Exception\JsonApiException;
 use WoohooLabs\Yin\JsonApi\Schema\Error;
 
@@ -85,7 +87,7 @@ class ApiError extends JsonApiException
         });
         $ret = [];
         foreach ($errors as $error) {
-            if ($error instanceof Exception) {
+            if ($error instanceof \Exception) {
                 $status = $error->code;
                 $code = $error->code;
                 $title = $error->message;

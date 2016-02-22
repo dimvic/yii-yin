@@ -6,13 +6,15 @@
     <arg value="s"/>
     <arg name="colors"/>
 
+    <extensions>php</extensions>
+
+    <file>YiiyinModule.php</file>
+    <file>src</file>
+
     <rule ref="PSR2"/>
     <rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
     <rule ref="PSR1.Classes.ClassDeclaration.MissingNamespace">
-        <exclude-pattern>*</exclude-pattern>
+        <exclude-pattern>YiiyinModule.php</exclude-pattern>
     </rule>
 
-    <file>components</file>
-
-    <extensions>php</extensions>
 </ruleset>

@@ -1,10 +1,10 @@
 <?php
 
+namespace dimvic\YiiYin;
+
 use WoohooLabs\Yin\JsonApi\Exception\ExceptionFactoryInterface;
 use WoohooLabs\Yin\JsonApi\Hydrator\AbstractHydrator;
 use WoohooLabs\Yin\JsonApi\Request\RequestInterface;
-use WoohooLabs\Yin\JsonApi\Hydrator\Relationship\ToManyRelationship;
-use WoohooLabs\Yin\JsonApi\Hydrator\Relationship\ToOneRelationship;
 
 class ApiActiveHydrator extends AbstractHydrator
 {
@@ -37,7 +37,7 @@ class ApiActiveHydrator extends AbstractHydrator
         ExceptionFactoryInterface $exceptionFactory
     ) {
         if ($clientGeneratedId !== null) {
-            throw new CHttpException(403);
+            throw new \CHttpException(403);
         }
     }
 
@@ -50,7 +50,7 @@ class ApiActiveHydrator extends AbstractHydrator
     }
 
     /**
-     * @param CActiveRecord $domainObject
+     * @param object $domainObject
      * @param string $id
      * @return mixed|null
      */
@@ -61,7 +61,7 @@ class ApiActiveHydrator extends AbstractHydrator
     }
 
     /**
-     * @param CActiveRecord $domainObject
+     * @param object $domainObject
      * @return callable[]
      */
     protected function getAttributeHydrator($domainObject)
@@ -69,7 +69,7 @@ class ApiActiveHydrator extends AbstractHydrator
         $ret = [];
         foreach ($domainObject->attributes as $k => $v) {
             if ($k != $domainObject->primaryKey()) {
-                $ret[$k] = function (CActiveRecord $domainObject, $value, $data, $attribute) {
+                $ret[$k] = function ($domainObject, $value, $data, $attribute) {
                     $domainObject->{$attribute} = $value;
                 };
             }
@@ -78,27 +78,24 @@ class ApiActiveHydrator extends AbstractHydrator
     }
 
     /**
-     * @param CActiveRecord $domainObject
+     * @param object $domainObject
      * @return callable[]
      */
     protected function getRelationshipHydrator($domainObject)
     {
-        if (get_class($domainObject) != ApiHelper::getCurrentResource()) {
+        if (get_class($domainObject) != ApiHelper::$resource) {
             return [];
         }
 
-        $relations = ApiHelper::getCurrentModelRelations();
         $ret = [];
-        foreach (ApiHelper::getExposedRelations(get_class($domainObject)) as $relation) {
+        $relationships = ApiHelper::getExposedRelationships(ApiHelper::getResourceType($domainObject));
+        foreach ($relationships as $relationship => $resourceType) {
+            $relationDescription = ApiHelper::getResourceRelations($domainObject)[$relationship];
+
             switch (true) {
-                case $relations[$relation][0] == CActiveRecord::HAS_MANY:
-                    if (isset($relations[$relation]['through'])) {
-                        $ret[$relation] = function (
-                            CActiveRecord $domainObject,
-                            $relationship,
-                            $data,
-                            $relationshipName
-                        ) {
+                case $relationDescription[0] == \CActiveRecord::HAS_MANY:
+                    if (isset($relationDescription['through'])) {
+                        $ret[$relationship] = function ($domainObject, $relationship, $data, $relationshipName) {
                             ApiActiveRelationHydratorHelper::hydrateHasManyThroughRelationship(
                                 $domainObject,
                                 $relationship,
@@ -107,12 +104,7 @@ class ApiActiveHydrator extends AbstractHydrator
                             );
                         };
                     } else {
-                        $ret[$relation] = function (
-                            CActiveRecord $domainObject,
-                            $relationship,
-                            $data,
-                            $relationshipName
-                        ) {
+                        $ret[$relationship] = function ($domainObject, $relationship, $data, $relationshipName) {
                             ApiActiveRelationHydratorHelper::hydrateHasManyRelationship(
                                 $domainObject,
                                 $relationship,
@@ -122,8 +114,8 @@ class ApiActiveHydrator extends AbstractHydrator
                         };
                     }
                     break;
-                case $relations[$relation][0] == CActiveRecord::HAS_ONE:
-                    $ret[$relation] = function (CActiveRecord $domainObject, $relationship, $data, $relationshipName) {
+                case $relationDescription[0] == \CActiveRecord::HAS_ONE:
+                    $ret[$relationship] = function ($domainObject, $relationship, $data, $relationshipName) {
                         ApiActiveRelationHydratorHelper::hydrateHasOneRelationship(
                             $domainObject,
                             $relationship,
@@ -132,8 +124,8 @@ class ApiActiveHydrator extends AbstractHydrator
                         );
                     };
                     break;
-                case $relations[$relation][0] == CActiveRecord::BELONGS_TO:
-                    $ret[$relation] = function (CActiveRecord $domainObject, $relationship, $data, $relationshipName) {
+                case $relationDescription[0] == \CActiveRecord::BELONGS_TO:
+                    $ret[$relationship] = function ($domainObject, $relationship, $data, $relationshipName) {
                         ApiActiveRelationHydratorHelper::hydrateBelongsToRelationship(
                             $domainObject,
                             $relationship,

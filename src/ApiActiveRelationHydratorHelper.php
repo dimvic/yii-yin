@@ -1,12 +1,14 @@
 <?php
 
+namespace dimvic\YiiYin;
+
 use WoohooLabs\Yin\JsonApi\Schema\ResourceIdentifier;
 
 class ApiActiveRelationHydratorHelper
 {
     /**
-     * @param CActiveRecord $domainObject
-     * @param WoohooLabs\Yin\JsonApi\Hydrator\Relationship\ToOneRelationship $relationship
+     * @param \CActiveRecord $domainObject
+     * @param \WoohooLabs\Yin\JsonApi\Hydrator\Relationship\ToOneRelationship $relationship
      * @param array $data
      * @param string $relationshipName
      */
@@ -16,17 +18,16 @@ class ApiActiveRelationHydratorHelper
         $relationConfiguration = $domainObject->relations()[$relationName];
 
         $relationClass = $relationConfiguration[1];
-        $relationModel = new $relationClass;
 
         $resourceIdentifier = $relationship->getResourceIdentifier();
 
         /**
-         * @var CActiveRecord $relationModel
+         * @var object $relationModel
          */
-        $relatedModel = $relationModel->findByPk($resourceIdentifier->getId());
+        $relatedModel = ApiActiveRepository::getById($relationClass, $resourceIdentifier->getId());
 
         /**
-         * @var CActiveRecord $relatedModel
+         * @var object $relatedModel
          */
         if ($relatedModel) {
             $domainObject->{$relationConfiguration[2]} = $relatedModel->id;
@@ -38,15 +39,15 @@ class ApiActiveRelationHydratorHelper
                 null,
                 $title,
                 "{$title} when trying to add it as a relationship to a resource of type '"
-                    . ApiHelper::getCurrentResource() . "'.",
+                    . ApiHelper::$resource . "'.",
                 self::generateMeta($resourceIdentifier, $relationshipName)
             ];
         }
     }
 
     /**
-     * @param CActiveRecord $domainObject
-     * @param WoohooLabs\Yin\JsonApi\Hydrator\Relationship\ToOneRelationship $relationship
+     * @param object $domainObject
+     * @param \WoohooLabs\Yin\JsonApi\Hydrator\Relationship\ToOneRelationship $relationship
      * @param array $data
      * @param string $relationshipName
      */
@@ -56,8 +57,8 @@ class ApiActiveRelationHydratorHelper
     }
 
     /**
-     * @param CActiveRecord $domainObject
-     * @param WoohooLabs\Yin\JsonApi\Hydrator\Relationship\ToManyRelationship $relationship
+     * @param object $domainObject
+     * @param \WoohooLabs\Yin\JsonApi\Hydrator\Relationship\ToManyRelationship $relationship
      * @param array $data
      * @param string $relationshipName
      */
@@ -100,8 +101,8 @@ class ApiActiveRelationHydratorHelper
     }
 
     /**
-     * @param CActiveRecord $domainObject
-     * @param WoohooLabs\Yin\JsonApi\Hydrator\Relationship\ToManyRelationship $relationship
+     * @param object $domainObject
+     * @param \WoohooLabs\Yin\JsonApi\Hydrator\Relationship\ToManyRelationship $relationship
      * @param array $data
      * @param string $relationshipName
      */

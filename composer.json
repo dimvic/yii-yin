@@ -1,0 +1,43 @@
+{
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "name": "dimvic/yiiyin",
+    "description": "Yii 1.1 json:api module",
+    "type": "yii-module",
+    "keywords": ["Yii", "Yin", "JSON API"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name":"Dimitris Vichos",
+            "email":"dimitris@unhooked.gr"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/dimvic/yii-yin/issues",
+        "source": "https://github.com/dimvic/yii-yin"
+    },
+    "repositories": [
+        {
+            "type": "git",
+            "url": "https://github.com/woohoolabs/yin"
+        }
+    ],
+    "require": {
+        "dimvic/composer-installers": "^0.1",
+        "woohoolabs/yin": "dev-master",
+        "php":"^5.6.0",
+        "psr/http-message": "^1.0.0",
+        "zendframework/zend-diactoros": "^1.1.0",
+        "justinrainbow/json-schema": "1.5.*",
+        "seld/jsonlint": "1.3.*"
+    },
+    "suggest": {
+        "yiisoft/yii": "^1.1.17"
+    },
+    "autoload": {
+        "psr-4": {
+            "WoohooLabs\\Yin\\": "src/",
+            "dimvic\\YiiYin\\": "src/"
+        }
+    }
+}

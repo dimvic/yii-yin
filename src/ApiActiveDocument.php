@@ -1,5 +1,7 @@
 <?php
 
+namespace dimvic\YiiYin;
+
 use WoohooLabs\Yin\JsonApi\Schema\JsonApi;
 use WoohooLabs\Yin\JsonApi\Schema\Link;
 use WoohooLabs\Yin\JsonApi\Schema\Links;
@@ -8,7 +10,7 @@ use WoohooLabs\Yin\JsonApi\Document\AbstractSingleResourceDocument;
 class ApiActiveDocument extends AbstractSingleResourceDocument
 {
     /**
-     * @var CActiveRecord
+     * @var \CActiveRecord
      */
     protected $domainObject;
 
@@ -58,7 +60,7 @@ class ApiActiveDocument extends AbstractSingleResourceDocument
     {
         return Links::createWithoutBaseUri(
             [
-                "self" => new Link(Yii::app()->createUrl('/api', ['model' => $this->domainObject]))
+                "self" => new Link(\Yii::app()->createUrl('/api', ['model' => $this->domainObject]))
             ]
         );
     }

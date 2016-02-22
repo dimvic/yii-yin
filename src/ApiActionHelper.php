@@ -1,45 +1,25 @@
 <?php
 
+namespace dimvic\YiiYin;
+
+use WoohooLabs\Yin\JsonApi\JsonApi;
+
 class ApiActionHelper
 {
-    public $resource;
-    public $resource_id;
-    public $related;
-
-    public function __construct()
-    {
-        $this->resource = ApiHelper::getCurrentResource();
-        $this->resource_id = ApiHelper::getCurrentId();
-        $this->related = ApiHelper::getRequestedRelated();
-    }
-
     public function GET()
     {
-        $domainObject = ApiActiveRepository::getById($this->resource, $this->resource_id);
+        $domainObject = ApiActiveRepository::getById(ApiHelper::$resource, ApiHelper::$id);
 
         if (!$domainObject) {
             ApiHelper::$responseErrors[] = [404];
             return;
         }
 
-        if ($this->related) {
-            $relationshipName = $this->related;
-
-            if (empty($relationshipName)) {
-                ApiHelper::$responseErrors[] = [400, 'Missing request parameter!'];
-                return;
-            }
-
-            $relations = ApiHelper::getExposedRelations(get_class($domainObject));
-            if (!in_array($relationshipName, $relations)) {
-                ApiHelper::$responseErrors[] = [404, 'Relationship not present!'];
-                return;
-            }
-
+        if (ApiHelper::$relationship) {
             $document = new ApiActiveDocument(new ApiActiveResourceTransformer);
 
             // Responding with "200 Ok" status code along with the requested relationship document
-            ApiHelper::$response = ['ok', $document, $domainObject, $relationshipName];
+            ApiHelper::$response = ['ok', $document, $domainObject, ApiHelper::$relationship];
         } else {
             $document = new ApiActiveDocument(new ApiActiveResourceTransformer);
 
@@ -51,9 +31,9 @@ class ApiActionHelper
     /**
      * @param \WoohooLabs\Yin\JsonApi\JsonApi $jsonApi
      */
-    public function POST(\WoohooLabs\Yin\JsonApi\JsonApi $jsonApi)
+    public function POST(JsonApi $jsonApi)
     {
-        $domainObject = $jsonApi->hydrate(new ApiActiveHydrator($this->resource), new $this->resource);
+        $domainObject = $jsonApi->hydrate(new ApiActiveHydrator(ApiHelper::$resource), new ApiHelper::$resource);
         ApiActiveRepository::save($domainObject);
 
         if (empty(ApiHelper::$responseErrors)) {
@@ -67,16 +47,16 @@ class ApiActionHelper
     /**
      * @param \WoohooLabs\Yin\JsonApi\JsonApi $jsonApi
      */
-    public function PATCH(\WoohooLabs\Yin\JsonApi\JsonApi $jsonApi)
+    public function PATCH(JsonApi $jsonApi)
     {
-        $domainObject = ApiActiveRepository::getById($this->resource, $this->resource_id);
+        $domainObject = ApiActiveRepository::getById(ApiHelper::$resource, ApiHelper::$id);
 
         if (!$domainObject) {
             ApiHelper::$responseErrors[] = [404];
             return;
         }
 
-        $domainObject = $jsonApi->hydrate(new ApiActiveHydrator($this->resource), $domainObject);
+        $domainObject = $jsonApi->hydrate(new ApiActiveHydrator(ApiHelper::$resource), $domainObject);
         ApiActiveRepository::save($domainObject);
 
         if (empty(ApiHelper::$responseErrors)) {
@@ -89,7 +69,7 @@ class ApiActionHelper
 
     public function DELETE()
     {
-        $domainObject = ApiActiveRepository::getById($this->resource, $this->resource_id);
+        $domainObject = ApiActiveRepository::getById(ApiHelper::$resource, ApiHelper::$id);
 
         if (!$domainObject) {
             ApiHelper::$responseErrors[] = [404];

@@ -1,5 +1,7 @@
 <?php
 
+namespace dimvic\YiiYin;
+
 use WoohooLabs\Yin\JsonApi\Schema\Link;
 use WoohooLabs\Yin\JsonApi\Schema\Links;
 use WoohooLabs\Yin\JsonApi\Schema\Relationship\ToManyRelationship;
@@ -11,16 +13,16 @@ class ApiActiveResourceTransformer extends AbstractResourceTransformer
     public $transformer;
 
     /**
-     * @param CActiveRecord $domainObject
+     * @param object $domainObject
      * @return string
      */
     public function getType($domainObject)
     {
-        return ApiHelper::getResourceType(get_class($domainObject));
+        return ApiHelper::getResourceType($domainObject);
     }
 
     /**
-     * @param CActiveRecord $domainObject
+     * @param object $domainObject
      * @return string
      */
     public function getId($domainObject)
@@ -29,7 +31,7 @@ class ApiActiveResourceTransformer extends AbstractResourceTransformer
     }
 
     /**
-     * @param CActiveRecord $domainObject
+     * @param object $domainObject
      * @return array
      */
     public function getMeta($domainObject)
@@ -38,7 +40,7 @@ class ApiActiveResourceTransformer extends AbstractResourceTransformer
     }
 
     /**
-     * @param CActiveRecord $domainObject
+     * @param object $domainObject
      * @return \WoohooLabs\Yin\JsonApi\Schema\Links|null
      */
     public function getLinks($domainObject)
@@ -51,16 +53,16 @@ class ApiActiveResourceTransformer extends AbstractResourceTransformer
     }
 
     /**
-     * @param CActiveRecord $domainObject
+     * @param object $domainObject
      * @return string
      */
-    public function getSelfLinkHref(CActiveRecord $domainObject)
+    public function getSelfLinkHref($domainObject)
     {
-        return Yii::app()->createUrl('/api', ['model' => $domainObject]);
+        return \Yii::app()->createUrl('/api', ['model' => $domainObject]);
     }
 
     /**
-     * @param CActiveRecord $domainObject
+     * @param object $domainObject
      * @return callable[]
      */
     public function getAttributes($domainObject)
@@ -68,7 +70,7 @@ class ApiActiveResourceTransformer extends AbstractResourceTransformer
         $ret = [];
         foreach ($domainObject->attributes as $k => $v) {
             if ($k != $domainObject->primaryKey()) {
-                $ret[$k] = function (CActiveRecord $domainObject, $request, $attribute) {
+                $ret[$k] = function ($domainObject, $request, $attribute) {
                     return $domainObject->{$attribute};
                 };
             }
@@ -77,50 +79,51 @@ class ApiActiveResourceTransformer extends AbstractResourceTransformer
     }
 
     /**
-     * @param CActiveRecord $domainObject
+     * @param object $domainObject
      * @return array
      */
     public function getDefaultIncludedRelationships($domainObject)
     {
-        return ApiHelper::getDefaultRelations(get_class($domainObject));
+        return ApiHelper::getDefaultRelationships(ApiHelper::getResourceType($domainObject));
     }
 
     /**
-     * @param CActiveRecord $domainObject
+     * @param object $domainObject
      * @return callable[]
      */
     public function getRelationships($domainObject)
     {
-        if (get_class($domainObject) != ApiHelper::getCurrentResource()) {
+        if (get_class($domainObject) != ApiHelper::$resource) {
             return [];
         }
 
         !$this->transformer && $this->transformer = new self;
 
         $ret = [];
-        foreach ($this->getDefaultIncludedRelationships($domainObject) as $relation) {
-            $ret[$relation] = function (CActiveRecord $domainObject, $request, $relationName) {
-                $relationDescription = ApiHelper::getCurrentModelRelations()[$relationName];
+        foreach ($this->getDefaultIncludedRelationships($domainObject) as $relationship => $resourceType) {
+            $ret[$relationship] = function ($domainObject, $request, $relationship) {
+                $relationDescription = ApiHelper::getResourceRelations($domainObject)[$relationship];
                 switch ($relationDescription[0]) {
-                    case CActiveRecord::HAS_ONE:
-                    case CActiveRecord::BELONGS_TO:
-                        $relationship = ToOneRelationship::create();
+                    case \CActiveRecord::HAS_ONE:
+                    case \CActiveRecord::BELONGS_TO:
+                        $relationshipObject = ToOneRelationship::create();
                         break;
                     default:
-                        $relationship = ToManyRelationship::create();
+                        $relationshipObject = ToManyRelationship::create();
                 }
-                return $relationship
+                return $relationshipObject
                     ->setLinks(
                         new Links(
                             $this->getSelfLinkHref($domainObject),
                             [
-                                "self" => new Link("/relationships/{$relationName}")
+                                "self" => new Link("/relationships/{$relationship}")
                             ]
                         )
                     )
-                    ->setData($domainObject->{$relationName}, $this->transformer);
+                    ->setData($domainObject->{$relationship}, $this->transformer);
             };
         }
+
         return $ret;
     }
 }
