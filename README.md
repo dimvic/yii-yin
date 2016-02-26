@@ -1,19 +1,22 @@
 # json:api module for Yii 1.1
 
+[![Packagist package][ico-packagist]][link-packagist]
+[![License][ico-license]](LICENSE.md)
+
 Yii 1.1 module, drop in and configure to automagically expose resources (CActiveRecord models) through a [json:api](http://jsonapi.org) 1.0 compatible web service.
 
-Thanks [yii-yin](https://github.com/woohoolabs/yin) for being an amazing library and providing the example this module is heavily based on.
+Thanks [yin](https://github.com/woohoolabs/yin) for being an amazing library and providing the example this module is heavily based on.
 
 Thanks [Máté Kocsis](https://github.com/kocsismate) for the help and merging of the pull requests.
 
 ## Supported functions
 
-* GET /{resource}/{id}
-* GET /{resource}/{id}/relationships/{relationship}
-* GET /{resource}/{id}/{relationship}
-* PATCH /{resource}/{id}
-* POST /{resource}
-* DELETE /{resource}/{id}
+* GET /{type}/{id}
+* GET /{type}/{id}/relationships/{relationship}
+* GET /{type}/{id}/{relationship}
+* PATCH /{type}/{id}
+* POST /{type}
+* DELETE /{type}/{id}
 
 ## Usage
 Simply configure the module and you have a fully functional HATEOAS web service for your models.
@@ -25,6 +28,11 @@ return [
    'modules' => [
         'yiiyin' => [
             'route' => 'api',//expose the module at /api
+            'controllerMap' => [//only add this if you want all requests logged
+                'default'=> [
+                    'class'=>'dimvic\\YiiYin\\ApiLogController',//log using Yii::log($log, 'info', 'json:api')
+                ],
+            ],
             'resources' => [
                 'Book' => [//exposed model
                     'type' => 'books',//exposed at api/books
@@ -89,3 +97,7 @@ Example project can be found [here](https://github.com/dimvic/yii-yin-example). 
 * Controller filter to validate requests (see [yin-middlewares](https://github.com/woohoolabs/yin-middlewares))
 * UUID generator for exposed models (using a behavior)
 * Allow use customized of customized repositories, transformers and hydrators
+
+[ico-packagist]: https://img.shields.io/badge/packagist-dev-lightgrey.svg?style=flat-square
+[ico-license]: https://img.shields.io/packagist/l/dimvic/yiiyin.svg?style=flat-square
+[link-packagist]: https://packagist.org/packages/dimvic/yiiyin

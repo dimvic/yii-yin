@@ -40,7 +40,7 @@ class ApiActiveRepository
             ApiHelper::$responseErrors[] = [
                 400,
                 'VALIDATION_FAILED',
-                "'" . ApiHelper::getObjectResource($domainObject) . "' validation error",
+                "'" . ApiHelper::getResourceType($domainObject) . "' validation error",
                 $error,
             ];
         }
@@ -60,7 +60,7 @@ class ApiActiveRepository
                     ApiHelper::$responseErrors[] = [
                         400,
                         'VALIDATION_FAILED',
-                        "'" . ApiHelper::getObjectResource(get_class($domainObject))
+                        "'" . ApiHelper::getResourceType(get_class($domainObject))
                             . "' relationship '{$resourceIdentifier->getType()}' validation error",
                         $error,
                         ApiActiveRelationHydratorHelper::generateMeta(

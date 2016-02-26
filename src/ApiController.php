@@ -24,11 +24,11 @@ class ApiController extends \CController
 
     public function init()
     {
-//        \Yii::app()->setComponents([
-//            'errorHandler' => [
-//                'errorAction' => 'api/default/error',
-//            ],
-//        ]);
+        \Yii::app()->setComponents([
+            'errorHandler' => [
+                'errorAction' => 'api/default/error',
+            ],
+        ]);
 
         // Initializing JsonApi
         $this->request = new Request(ServerRequestFactory::fromGlobals());
@@ -37,15 +37,8 @@ class ApiController extends \CController
         parent::init();
     }
 
-    /**
-     * We do not override runAction() because we want filters, beforeAction(), etc to run
-     *
-     * @param \CAction $action
-     */
-    public function afterAction($action)
+    public function actionIndex()
     {
-        parent::afterAction($action);
-
         $route = explode('/', \Yii::app()->request->pathInfo);
         array_shift($route);//first item is always the module's route
 
@@ -110,7 +103,7 @@ class ApiController extends \CController
             $detail = YII_DEBUG && \Yii::app()->errorHandler->error ? \Yii::app()->errorHandler->error : null;
         }
         ApiHelper::$responseErrors[] = [$code, $detail];
-        $this->sendErrors();
+        $this->respond();
     }
 
     public function sendErrors()
@@ -148,8 +141,7 @@ class ApiController extends \CController
                 default:
                     ApiHelper::$responseErrors[] = [500];
             }
-        }
-        if (!empty(ApiHelper::$responseErrors)) {
+        } elseif (!empty(ApiHelper::$responseErrors)) {
             $this->sendErrors();
         }
     }

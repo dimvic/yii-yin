@@ -16,12 +16,6 @@
         "issues": "https://github.com/dimvic/yii-yin/issues",
         "source": "https://github.com/dimvic/yii-yin"
     },
-    "repositories": [
-        {
-            "type": "git",
-            "url": "https://github.com/woohoolabs/yin"
-        }
-    ],
     "require": {
         "dimvic/composer-installers": "^0.1",
         "woohoolabs/yin": "dev-master",
