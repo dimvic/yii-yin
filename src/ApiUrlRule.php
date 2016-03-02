@@ -6,12 +6,12 @@ class ApiUrlRule extends \CBaseUrlRule
 {
     public function createUrl($manager, $route, $params, $ampersand)
     {
-        $route = ApiHelper::getRoute();
+        $apiRoute = ApiHelper::getRoute();
         $url = false;
-        if (preg_match('#(/?' . preg_quote($route) . ')$#', $route)) {
+        if (preg_match('#(/?' . preg_quote($apiRoute) . ')$#', $route)) {
             $model = !empty($params['model']) ? $params['model'] : null;
             if ($model && is_object($model)) {
-                $url = "/{$route}/" . ApiHelper::getResourceType(get_class($model)) . '/' . $model->id;
+                $url = "/{$apiRoute}/" . ApiHelper::getResourceType(get_class($model)) . '/' . $model->id;
             }
         }
         return $url;
