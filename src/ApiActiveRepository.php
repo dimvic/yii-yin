@@ -36,12 +36,19 @@ class ApiActiveRepository
     public static function save($domainObject)
     {
         $domainObject->validate();
-        foreach ($domainObject->errors as $error) {
+        $errors = [];
+        foreach ($domainObject->errors as $errs) {
+            foreach ($errs as $err) {
+                $errors[$err] = '';
+            }
+        }
+        $errors = array_keys($errors);
+        if (!empty($errors)) {
             ApiHelper::$responseErrors[] = [
                 400,
                 'VALIDATION_FAILED',
                 "'" . ApiHelper::getResourceType($domainObject) . "' validation error",
-                $error,
+                $errors,
             ];
         }
 
@@ -55,20 +62,25 @@ class ApiActiveRepository
 
             /** @var \WoohooLabs\Yin\JsonApi\Schema\ResourceIdentifier $resourceIdentifier */
             $resourceIdentifier = $item['resourceIdentifier'];
-            foreach ($model->errors as $attribute => $errors) {
-                foreach ($errors as $error) {
-                    ApiHelper::$responseErrors[] = [
-                        400,
-                        'VALIDATION_FAILED',
-                        "'" . ApiHelper::getResourceType(get_class($domainObject))
-                            . "' relationship '{$resourceIdentifier->getType()}' validation error",
-                        $error,
-                        ApiActiveRelationHydratorHelper::generateMeta(
-                            $resourceIdentifier,
-                            $resourceIdentifier->getType()
-                        )
-                    ];
+            $errors = [];
+            foreach ($model->errors as $attribute => $errs) {
+                foreach ($errors as $err) {
+                    $errs[$err] = [];
                 }
+            }
+            $errors = array_flip($errors);
+            if (!empty($errors)) {
+                ApiHelper::$responseErrors[] = [
+                    400,
+                    'VALIDATION_FAILED',
+                    "'" . ApiHelper::getResourceType(get_class($domainObject))
+                    . "' relationship '{$resourceIdentifier->getType()}' validation error",
+                    $errors,
+                    ApiActiveRelationHydratorHelper::generateMeta(
+                        $resourceIdentifier,
+                        $resourceIdentifier->getType()
+                    )
+                ];
             }
         }
 

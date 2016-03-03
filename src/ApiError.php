@@ -99,6 +99,12 @@ class ApiError extends JsonApiException
                 $title = $error[1]['message'];
                 $detail = "{$error[1]['file']} {$error[1]['line']}";
                 $meta = ['trace' => $error[1]['trace']];
+            } elseif (!empty($error['code'])) {
+                $status = $error['code'];
+                $code = $error['code'];
+                $title = $error['message'];
+                $detail = "{$error['file']} {$error['line']}";
+                $meta = ['trace' => $error['trace']];
             } else {
                 $status = $error[0];
                 $code = !empty($error[1])

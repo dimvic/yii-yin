@@ -26,7 +26,7 @@ class ApiController extends \CController
     {
         \Yii::app()->setComponents([
             'errorHandler' => [
-                'errorAction' => 'api/default/error',
+                'class'=>'dimvic\\YiiYin\\ApiErrorHandler',
             ],
         ]);
 
