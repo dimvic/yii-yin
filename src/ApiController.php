@@ -2,13 +2,16 @@
 
 namespace dimvic\YiiYin;
 
-use WoohooLabs\Yin\JsonApi\JsonApi;
-use WoohooLabs\Yin\JsonApi\Request\Request;
 use WoohooLabs\Yin\JsonApi\Exception\ExceptionFactory;
 use WoohooLabs\Yin\JsonApi\Exception\JsonApiExceptionInterface;
+use WoohooLabs\Yin\JsonApi\JsonApi;
+use WoohooLabs\Yin\JsonApi\Request\Request;
 use Zend\Diactoros\Response;
 use Zend\Diactoros\Response\SapiEmitter;
 use Zend\Diactoros\ServerRequestFactory;
+use function array_shift;
+use function file_get_contents;
+use function json_decode;
 
 class ApiController extends \CController
 {
@@ -26,12 +29,15 @@ class ApiController extends \CController
     {
         \Yii::app()->setComponents([
             'errorHandler' => [
-                'class'=>'dimvic\\YiiYin\\ApiErrorHandler',
+                'class' => 'dimvic\\YiiYin\\ApiErrorHandler',
             ],
         ]);
 
         // Initializing JsonApi
         $this->request = new Request(ServerRequestFactory::fromGlobals());
+        if (empty($this->request->getResource())) {
+            $this->request = new Request(ServerRequestFactory::fromGlobals($_SERVER, ['null' => null], json_decode(file_get_contents('php://input'), true)));
+        }
         $this->jsonApi = new JsonApi($this->request, new Response(), new ExceptionFactory());
 
         parent::init();
@@ -112,7 +118,7 @@ class ApiController extends \CController
     }
 
     /**
-     * @param $e JsonApiExceptionInterface
+     * @param $e      JsonApiExceptionInterface
      * @param $detail string
      */
     public function sendError($e, $detail = null)
